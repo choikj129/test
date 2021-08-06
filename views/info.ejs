@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <%- include("./head.ejs") %>
+        <style>
+            .toggle{
+                display: none;
+            }
+        </style>
+    </head>
+    <body>
+        <br>
+        <div class="container">
+            <div>
+                <% if (info.length>0) { %>
+                    <b><%=farm_no%> <%= name %></b>
+                <% } else{ %>
+                    <br>
+                <% } %>
+            </div>
+
+            <button class="btn btn-success me-md-2" id="graph" style="float : left">그래프</button>
+            <button class="btn btn-primary" onclick="history.back()" style="float : right">목록</button>
+               
+
+                
+            
+            <table class="table table-success">
+                <thead>
+                    <tr>
+                        <th>온도</th>
+                        <th>습도</th>
+                        <th>날짜</th>
+                        <th>시간</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (info.length>0) { %>
+                        <% for (var i=0; i<info.length; i++){ %>
+                            <tr>
+                                <td><%= info[i].temp %></td>
+                                <td><%= info[i].hud %></td>
+                                <td><%= info[i].date %></td>
+                                <td><%= info[i].time %></td>
+                            </tr>
+                        <% } %>
+                    <% } else{ %>
+                        <tr>
+                            <td colspan="4">데이터가 존재하지 않습니다.</td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+            <div id="canvas">
+                <canvas id="myChart"></canvas>
+            </div>
+        </div>
+        <script>
+            var time = "<%=time%>".split(",")
+            var temp = "<%=temp%>".split(",")
+            var hud = "<%=hud%>".split(",")
+            var label = [];
+            temp_data = [];
+            hud_data = [];
+            for (var i=time.length-1; i>-1; i--){
+                label.push(time[i])
+                temp_data.push(temp[i])
+                hud_data.push(hud[i])
+            }
+           
+            
+            const data = {
+                labels : label,
+                datasets : [{
+                    label: '온도',
+                    backgroundColor: 'rgb(255, 99, 132)',
+                    borderColor : 'rgb(255, 99, 132)',
+                    data : temp_data
+                },
+                {
+                    label: '습도',
+                    backgroundColor: 'rgb(67, 92, 189)',
+                    borderColor : 'rgb(67, 92, 189)',
+                    data : hud_data
+                }
+                ]
+            }
+            const config = {
+                type: 'line',
+                data: data,
+                options: {
+                        responsive: true,
+                        interaction: {
+                        mode: 'index',
+                        intersect: false,
+                        },
+                        stacked: false,
+                        plugins: {
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            max : 40,
+                            min : 0,
+                            ticks : {
+                                stepSize : 10
+                            }
+                        }
+                    }
+                },
+            };
+            var myChart = new Chart(
+              document.getElementById('myChart'),
+              config
+            );
+            var chart=true;
+            $("#graph").click(function(){
+                // if(chart){
+                //     $("#myChart").hide()
+                //     chart = false
+                // }else{
+                //     $("#myChart").show()
+                //     chart = true
+                // }
+                $("#canvas").toggleClass("toggle");
+            })
+        </script>
+    </body>
+</html>

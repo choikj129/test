@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <%- include("./head.ejs") %>
+        <script>
+            function search(){
+                location.href='/search'
+            }
+        </script>
+    </head>
+    <body>
+        <div align="center">
+            <img src="https://www.kamnews.co.kr/news/photo/201711/1716_4837_1624.png">
+        </div>
+        <div align="center">
+            <button onclick="location.href='/regist'" class="btn btn-primary">등록</button>
+            <button onclick="search()" class="btn btn-primary">조회</button>
+        </div>
+        
+    </body>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <%- include("./head.ejs") %>
+        <script>
+            function info(no, name){
+                location.href = "/info?_farm_no="+String(no)+"&_name="+name
+            }
+
+            function update(){
+                $.getJSON("/update",
+                function(result){
+                    $("#time").text("갱신 : "+result.time);
+                    var body;
+                    for (var i=0; i<result.farm.length; i++){
+                        body += "<tr style='cursor : pointer' onclick=info('"+result.farm[i].no+`',"`+result.farm[i].name+`"`+")>"
+                        for(key in result.farm[0]){
+                            if (key=="name"){
+                                body += "<td>" + result.farm[i][key] + "</td>"
+                                continue
+                            }else if (key=="linkcode"){
+                                continue
+                            }
+                            body += "<td>" + result.farm[i][key] + "</td>"
+                        }
+                        body += "</tr>"
+                    }
+                    $("tbody").html(body)
+                })
+            }
+            setInterval(function(){
+                update()
+            },1000)
+        </script>
+    </head>
+    <body>
+        <div class="container" style="margin-top:20px;">
+            <button class="btn btn-secondary" onclick="location.href='/logout'">로그아웃</button>
+            <div align="right" id="time">
+                갱신 : <%= time %>
+            </div>
+            <table class="table table-primary table-hover">
+                <thead>
+                    <tr>
+                        <th>농장 번호</th>
+                        <th>농장 이름</th>
+                        <th>농장 주소</th>
+                        <th>온도</th>
+                        <th>습도</th>
+                        <th>날짜</th>
+                        <th>시간</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% for (var i=0; i<farm.length; i++) {%>
+                        <tr style="cursor : pointer" onclick="info('<%=String(farm[i].no)%>','<%=farm[i].name%>')">
+                            <td><%= farm[i].no %></td>
+                            <td><%= farm[i].name %></td>
+                            <td><%= farm[i].address %></td>
+                            <td><%= farm[i].temp %></td>
+                            <td><%= farm[i].hud %></td>
+                            <td><%= farm[i].date %></td>
+                            <td><%= farm[i].time %></td>
+                        </tr>
+                    <%}%>
+                </tbody>
+            </table>
+            <div id="test"></div>
+        </div>
+    </body>
+</html>

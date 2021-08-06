@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title></title>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+        <script src="./utils.js"></script>
+
+        <style>
+
+            /* 배경 */
+
+            .graph_wrap{
+                width:1400px;
+                height:fit-content;
+                background:tan;
+            }
+            .graph{
+                width:400px;
+                height:fit-content;
+                
+            }
+            .graph canvas{
+                background:#fff;
+                border-radius: 10px;
+                box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.16);
+            }
+            /* .graph_wrap table:nth-child(1){
+                float:left;
+                width:fit-content;
+
+            } */
+
+
+
+            /* 조회아이디, 예매횟수 */
+            .graph_title{
+                width:100%;
+                height:80px;
+                background:#333;
+                text-align: center;
+            }
+            .graph_title form{
+                width:300px;
+                line-height: 80px;
+                margin-left:20px;
+                text-align: left;
+                float:left;
+                position: relative;
+                color:#fff;
+            }
+            .graph_title form input{
+                width:200px;
+                height:22px;
+                color:#333;
+                margin-left:10px;
+            }
+            .graph_title form input+input{
+                position:absolute;
+                margin-top:26px;
+                width:50px;
+                height:28px;
+                background:#000;
+                color:#fff;
+                border:none;
+            }
+            .title_2{
+                width:fit-content;
+                float:right;
+                background:#333;
+                color:#fff;
+                margin-top:23px;
+                padding:.5rem;
+            }
+
+
+            /* 그래프 */
+
+            .graph_list{
+                float:left;
+                width:fit-content;
+                height:1033px;
+                text-align: center;
+                margin-left:1rem;
+                margin-top:1rem;
+                position: relative;
+            }
+            .graph td{
+                width:420px;
+                height:420px;
+                float:right;
+                margin:.5rem;
+            }
+            .graph td:nth-child(2){
+                clear: both;
+                float:left;
+            }
+            .graph td:nth-child(3){
+                float:right;
+            }
+            
+            .graph_wrap table:nth-child(1){
+                float:left;
+            }
+            .graph_wrap table:nth-child(2){
+                float:left;
+            }
+            .graph_wrap table:nth-child(3){
+                clear: both;
+            }
+
+            /* xy좌표 table */
+            .xy{
+                position:absolute;
+                top:125px;
+                left:428px;
+                width:400px;
+                height:400px;
+                background:#fff;
+                text-align: center;
+                border-collapse: collapse;
+                font-size:12px;
+            }
+            .xy_title{
+                background:#333;
+                color:#fff;
+                font-size:14px;
+                
+            }
+            .xy tr:nth-child(even){
+                background:#eee;
+            }
+
+            .macro{
+            
+                text-align: center;
+                color:#333;
+                background:#fff;
+                border-radius: 1em;
+                box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.16);
+            }
+
+        </style>
+    </head>
+    <body onload="init()">
+        <div class="graph_title">
+            <tr class="graph_title">    
+                    <td>
+                        <form method="post" action="/canvas">
+                            <label>조회 ID</label>
+                            <input type="text" name = "id" value="<%=click[0].id%>">
+                            <input type="submit" value="검색">
+                        </form>
+
+                        <%if(click){%>
+                        <label class="title_2">예매 횟수 : <%=click.length%></label>
+                        <%}%>
+                    </td>
+                </tr>
+        </div>
+        <div class="graph_wrap">
+            <table>
+                <tr>
+                    <td rowspan="2">
+                        <canvas id="myCanvas" style="background-image:url(./img/screen.png); " width="373px" height="1032px">
+                        </canvas>
+                    </td>
+                </tr>
+            </table>
+            <table class="graph_list">  
+                <tr class="graph" > 
+                    <td style="vertical-align: top;">
+                        <canvas id="myChart3" width="400" height="400"></canvas>
+                    </td>
+                    <td style="vertical-align: top;">
+                        <canvas id="myChart2" width="400" height="400"></canvas>
+                    </td>                    
+                    <td style="vertical-align: top;">
+                        <canvas id="myChart" width="400" height="400"></canvas>
+                    </td>
+                </tr>
+                <tr>
+                    <%    
+                    var time = click[0].time2;
+                    var time_ = time.split(",");
+                    var rap = 0;
+                    for (var i = 0; i < time_.length; i++){
+                        if(i != 0 && time_[i] != 0){
+                            if(time_[i] - time[i-1] < 1000){
+                                rap++
+                            };
+                        }
+                    }
+                    var per = rap / (time_.length - 1) * 100;
+                    %>
+                        <td class="macro" rowspan="2">이 계정은 매크로일 확률이 <b style="color: red;"><%=per%>%</b> 입니다.</td>
+                </tr>
+        </table>
+
+
+
+            <table class="xy">
+                <tr class="xy_title">
+                    <td>No</td>
+                    <td>시간 차(sec)</td>
+                    <td>X 좌표</td>
+                    <td>Y 좌표</td>
+                </tr>
+                <%
+                var x = click[0].x_position;
+                var y = click[0].y_position;
+                var time = click[0].time2;
+                var x_ = x.split(",");
+                var y_ = y.split(",");
+                var time_ = time.split(",");
+                for (var i = 0; i < x_.length; i++){%>
+                    <tr>
+                        <td><%=i+1%></td>
+                        <td><%=time_[i]/1000%></td>
+                        <td><%=x_[i]%></td>
+                        <td><%=y_[i]%></td>
+                    </tr>
+                <%}%>
+            </table>
+        </div>
+
+
+
+
+
+
+
+
+        <script>
+            var canvas, context;
+            function init() {
+                canvas = document.getElementById("myCanvas");
+                context = canvas.getContext("2d");
+                context.lineWidth = 3; // 선 굵기를 2로 설정
+                context.strokeStyle = "black";
+
+                var x = '<%=click[0].x_position%>';
+                var y = '<%=click[0].y_position%>';
+                var time = '<%=click[0].time2%>';
+                var x_ = x.split(",");
+                var y_ = y.split(",");
+                var time_ = time.split(",");
+                        context.beginPath();
+                        context.moveTo(x_[0], y_[0]);
+                for(var i =1; i < x_.length; i++){
+                    console.log(x_[i]);
+                    console.log(y_[i]);
+                    context.lineTo(x_[i], y_[i]);
+                    context.font="bold 12px Arial";
+                    context.fillStyle="#a1081f"
+                    context.textBaseline = 'middle';
+                    context.fillText("["+i+"]"+Math.round(time_[i]/1000)+"sec", x_[i], y_[i]);
+
+                }
+                context.stroke();
+
+                // console.log(x_);
+                // console.log(y_);
+            
+                // 마우스 리스너 등록. e는 MouseEvent 객체
+                canvas.addEventListener("mousemove", function (e) { move(e) }, false);
+                canvas.addEventListener("mousedown", function (e) { down(e) }, false);
+                canvas.addEventListener("mouseup", function (e) { up(e) }, false);
+                canvas.addEventListener("mouseout", function (e) { out(e) }, false);
+            }
+            
+            var startX=0, startY=0; // 드래깅동안, 처음 마우스가 눌러진 좌표
+            var drawing=false;
+            function draw(curX, curY) {
+                context.beginPath();
+                context.moveTo(startX, startY);
+                context.lineTo(curX, curY);
+                context.stroke();
+            }
+            function down(e) {
+                startX = e.offsetX; startY = e.offsetY;
+                drawing = true;
+            }
+            function up(e) { drawing = false; }
+            function move(e) {
+                if(!drawing) return; // 마우스가 눌러지지 않았으면 리턴
+                var curX = e.offsetX, curY = e.offsetY;
+                draw(curX, curY);
+                startX = curX; startY = curY;
+            }
+            function out(e) { drawing = false; }
+        </script>
+
+<script> 
+    var x = '<%=click[0].x_position%>';
+    var y = '<%=click[0].y_position%>';
+    var time = '<%=click[0].time2%>';
+    var x_ = x.split(",");
+    var y_ = y.split(",");
+    var time_ = time.split(",");
+    var point = [];
+    var point_time = [];
+    for(var i =0; i < x_.length;i++){
+        point.push(x_[i]+","+y_[i]);
+        point_time.push(time_[i]/1000);
+    }
+
+    var ctx = document.getElementById('myChart').getContext('2d');
+    var chart = new Chart(ctx, { // 챠트 종류를 선택 
+        type: 'line', // 챠트를 그릴 데이타 
+        data: { labels: point, 
+        datasets: [{ 
+            label: '클릭 한 시간', 
+            backgroundColor: '#dede0e', 
+            borderColor: '#dede0e', 
+            fill: false,
+            pointRadius: 5,
+            pointHoverRadius: 8,
+            data: point_time 
+        }] 
+    }, // 옵션 
+    options: {
+        responsive: true,
+				plugins: {
+					legend: {
+						position: 'bottom',
+					},
+					title: {
+						display: true,
+						text: 'Chart.js Line Chart - Different point sizes'
+					}
+				},
+				hover: {
+					mode: 'index'
+				},
+				scales: {
+					x: {
+						display: true,
+						scaleLabel: {
+							display: true,
+							labelString: 'Month'
+						}
+					},
+					y: {
+						display: true,
+						scaleLabel: {
+							display: true,
+							labelString: 'Value'
+						}
+					}
+				}
+    } });
+    var ctx2 = document.getElementById('myChart2').getContext('2d');
+    var chart2 = new Chart(ctx2, { // 챠트 종류를 선택 
+        type: 'radar', // 챠트를 그릴 데이타 
+        data: { labels: point, 
+        datasets: [{ 
+            label: '클릭 한 시간', 
+            backgroundColor: '#fa897b', 
+            borderColor: '#fa897b', 
+            fill: false,
+            pointRadius: 5,
+            pointHoverRadius: 8,
+            data: point_time 
+        }] 
+    }, // 옵션 
+    options: {
+
+    } });
+    
+    var ctx3 = document.getElementById('myChart3').getContext('2d');
+    var chart3 = new Chart(ctx3, { // 챠트 종류를 선택 
+        type: 'bar', // 챠트를 그릴 데이타 
+        data: { labels: point, 
+        datasets: [{ 
+            label: '클릭 한 시간', 
+            backgroundColor: '#63bcc9', 
+            borderColor: 'none', 
+            fill: false,
+            pointRadius: 7,
+            pointHoverRadius: 10,
+            data: point_time 
+        }] 
+    }, // 옵션 
+    options: {
+
+    } });
+</script>
+
+
+    </body>
+</html>

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <%- include("../head.ejs") %>
+    </head>
+    <body>
+        <form action="/login" method="post">
+            <div class="container" style="margin-top: 100px;">
+                <div class="input-group mb-3" style="width: 300px; margin: auto;">
+                    <span class="input-group-text" id="basic-addon1"></span>
+                    <input type="text" class="form-control" placeholder="Id" name="_id">
+                </div>
+                <div class="input-group mb-3" style="width: 300px; margin: auto;">
+                    <span class="input-group-text" id="basic-addon1"></span>
+                    <input type="text" class="form-control" placeholder="Password" name="_pw">
+                </div>
+            </div>
+            <div align="center">
+                <button type="submit" class="btn btn-primary">로그인</button>
+                <span class="btn btn-primary" onclick="location.href='/login/signup'">
+                    회원가입
+                </span>
+            </div>  
+        </form>   
+    </body>
+</html>
